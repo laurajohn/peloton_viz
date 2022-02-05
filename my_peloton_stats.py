@@ -33,13 +33,11 @@ def call_peloton(my_user_id, auth_session, type, workout_id=None, passed_url=Non
 
     :param my_user_id: user uuid (not the one you see on your bike/app)
     :param auth_session: authenticated session ID
-    :param type: I'm putting all the URL logic here.
+    :param type: I'm putting all the URL logic here
     :param workout_id: peloton identifier for individual ride/class
     :return: json returned
     """
 
-    # might need to paginate here when I have more workouts?
-    # it changed, now it's only 100
     if type == 'all_workouts':
         url = base_url + 'user/' + my_user_id + '/workouts?limit=100'
     elif type == 'workout':
@@ -59,10 +57,10 @@ def call_peloton(my_user_id, auth_session, type, workout_id=None, passed_url=Non
 
 def paginate_workouts(auth):
     """
-    Call API & paginate
+    Call API for workouts & paginate
 
     """
-    # has some ride details, but not all.  The rest require a call to the specific workout
+
     my_workouts = call_peloton(my_user_id=auth['my_user_id']
                                , auth_session=auth['auth_session']
                                , type='all_workouts')
