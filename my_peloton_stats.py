@@ -212,8 +212,8 @@ def make_dash(df):
     )
 
     # 20 & 30 min class counts over time by discipline
-    TOD_cyc_20 = cycling_df[(cycling_df['duration'] >= 1180) & (cycling_df['duration'] <= 1220)].groupby(['month_year']).sum()
-    TOD_cyc_30 = cycling_df[(cycling_df['duration'] >= 1780) & (cycling_df['duration'] <= 1820)].groupby(['month_year']).sum()
+    TOD_cyc_20 = cycling_df[cycling_df['duration'] == 1200].groupby(['month_year']).sum()
+    TOD_cyc_30 = cycling_df[cycling_df['duration'] == 1800].groupby(['month_year']).sum()
     fig.add_trace(
         go.Bar(x=TOD_cyc_30.index
                , y=TOD_cyc_30["count"]
