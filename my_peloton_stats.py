@@ -141,6 +141,7 @@ def clean_dataframe(df):
     )
 
     df['output_per_minute'] = df['total_work']/1000/(df['duration']/60)
+    df['output'] = df['total_work']/1000
 
     df['week'] = df['start_date'] - pd.to_timedelta(df['start_date'].dt.dayofweek, unit='d')
     df['week'] = pd.to_datetime(df['week']).dt.strftime('%Y-%m-%d')
@@ -163,10 +164,11 @@ def make_dash(df):
     strength_df = df[df['fitness_discipline'] == 'strength']
 
     fig = make_subplots(
-        rows=5, cols=2,
+        rows=6, cols=2,
         specs=[[{"colspan": 2}, None],
                [{"colspan": 2}, None],
                [{"colspan": 2}, None],
+               [{}, {}],
                [{}, {}],
                [{}, {}]
                ],
@@ -175,6 +177,8 @@ def make_dash(df):
                         , "Average Output per minute over time"
                         , "Avg Output per minute - 30 min class"
                         , "Avg Output per minute - 20 min class"
+                        , "Max Output - 30 min class"
+                        , "Max Output - 20 min class"
                         , "Recent: Avg Output per minute - 30 min class"
                         , "Recent: Avg Output per minute - 20 min class"
                         ))
@@ -272,6 +276,32 @@ def make_dash(df):
         row=4, col=2
     )
 
+    # has my max output been increasing over time?
+    max_30 = cycling_df[(cycling_df['duration'] == 1800)].groupby(['month_year']).max().round(2)
+    max_20 = cycling_df[(cycling_df['duration'] == 1200)].groupby(['month_year']).max().round(2)
+    fig.add_trace(
+        go.Scatter(x=max_30.index
+                   , y=max_30["output"]
+                   , text=max_30["output"]
+                   , name="30 minute classes"
+                   , textposition='top center'
+                   , showlegend=False
+                   , mode="lines"
+                   ),
+        row=5, col=1
+    )
+    fig.add_trace(
+        go.Scatter(x=max_20.index
+                   , y=max_20["output"]
+                   , text=max_20["output"]
+                   , name="20 minute classes"
+                   , textposition='top center'
+                   , showlegend=False
+                   , mode="lines"
+                   ),
+        row=5, col=2
+    )
+
     # has my avg output been increasing over time?  Recently, by week
     TOD_30_wk = cycling_df[(cycling_df['recent_flag']) & (cycling_df['duration'] == 1800)].groupby(['week']).mean().round(2)
     TOD_20_wk = cycling_df[(cycling_df['recent_flag']) & (cycling_df['duration'] == 1200)].groupby(['week']).mean().round(2)
@@ -283,7 +313,7 @@ def make_dash(df):
                , textposition='inside'
                , showlegend=False
                ),
-        row=5, col=1
+        row=6, col=1
     )
     fig.add_trace(
         go.Bar(x=TOD_20_wk.index
@@ -293,7 +323,7 @@ def make_dash(df):
                , textposition='inside'
                , showlegend=False
                ),
-        row=5, col=2
+        row=6, col=2
     )
 
     fig.update_layout(title_text="Peloton Dash")
